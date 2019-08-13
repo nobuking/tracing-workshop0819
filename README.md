@@ -11,16 +11,14 @@ NSXICのOpenStack環境を利用します。
 <https://sysrdc.app.box.com/file/502061380587>
 
 * JDKの準備
-JDK 1.8以上をインストールする
+JDK 1.8以上をインストールします。
 
 ```
 yum install openjdk
 ```
 
-```
-
 * Jaegerの準備
-以下を実行する
+以下を実行します
 
 ```
 $ docker run -d --name jaeger \
