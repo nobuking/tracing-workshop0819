@@ -17,6 +17,7 @@ JDK 1.8以上をインストールします。
 yum install openjdk
 ```
 
+
 * Jaegerの準備
 以下を実行します
 
