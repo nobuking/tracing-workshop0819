@@ -334,7 +334,52 @@ $ curl http://localhost:8080/sayHello/Nefario
 
 
 ## Exercise 4: 複数プロセス間のトレース
+演習3までは全て1つのプロセスで動くアプリケーションでした。
+この演習では、Helloアプリケーションをマイクロサービス化した上で
+マイクロサービス間の分散トレーシングを実装します。
+またinject, extractの計測ポイントを利用してプロセス間でコンテキスト伝播を行います。
+
 ### 4a) モノリスをマイクロサービスへ変更する
+以下の機能をマイクロサービス化します。
+- データベースから個人の情報を取得する機能を BigBrotherサービスに
+- 挨拶のフォーマットを行う機能を Formatterサービスに
+
+BigBrotherサービスはポート8081でリッスンし、getPersonというエンドポイントを持ちます。
+パス・パラメーターとして個人の名前を受け取り個人に関する情報をJSONとして返します。
+
+```
+$ curl http://localhost:8081/getPerson/Gru
+{"Name":"Gru","Title":"Felonius","Description":"Where are the minions?"}
+```
+
+Formatterサービスはポート8082でリッスンし、formatGreetingというエンドポイントを持ちます。
+URL問い合わせパラメータとしてエンコードされたname、title、descriptionの3つのパラメータを受け取り、プレーン・テキスト文字列で応答します。
+
+```
+$ curl 'http://localhost:8082/formatGreeting?name=Smith&title=Agent'
+Hello, Agent Smith!
+```
+
+* exercice4aのコードを確認します。
+
+```
+$ cd .../tracing-workshop0819-mywork/Chapter01/java/src/main/java/exercise4a
+$ tree .
+.
+├── HelloApp.java
+├── HelloController.java
+├── bigbrother
+│   ├── BBApp.java
+│   └── BBController.java
+└── formatter
+    ├── FApp.java
+    └── FController.java
+```
+
+HelloControllerはまだ同じgetPerson()関数とformatGreeting()関数を持っていますが、それらは2つの新しいサービス（exercise4a.bigbrotherとexercise4a.formatterパッケージの中にある）に対してauto-injectされるSpringのRestTemplateを使って、HTTPリクエストを実行します。
+
+
+
 ### 4b) プロセス間のコンテキスト伝播
 ### 4c) OpenTracing推奨タグを付与する
 ## Exercise 5: baggageを利用する

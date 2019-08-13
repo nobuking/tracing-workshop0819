@@ -14,9 +14,8 @@ NSXICのOpenStack環境を利用します。
 JDK 1.8以上をインストールします。
 
 ```
-yum install openjdk
+$ sudo yum install java-1.8.0-openjdk
 ```
-
 
 * Jaegerの準備
 以下を実行します
@@ -30,7 +29,9 @@ $ docker run -d --name jaeger \
 ```
 
 http://localhost:16686
-へアクセスしてJagerへの接続を確認します。
+へアクセスしてJaegerへの接続を確認します。
+NSXICの場合はポート転送が必要になりますので適宜設定下さい。
+
 
 ## 本ワークショップの内容
 
