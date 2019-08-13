@@ -3,28 +3,19 @@
 ## 前提
 このワークショップで用いるコードは、Mastering Distributed Tracingという書籍からのものを一部加工して利用しています。
 
-## 事前準備
+## 環境事前準備
+* マシンへの接続
+NSXICのOpenStack環境を利用します。
+下記に参加者ごとのマシン割当を記載しているので確認して踏み台サーバ経由で接続してください。
+
+<https://sysrdc.app.box.com/file/502061380587>
+
 * JDKの準備
 JDK 1.8以上をインストールする
 
 ```
 yum install openjdk
 ```
-
-* MySQLの準備
-dockerにてMySQL 5.6を起動する
-
-```
-$ docker run -d --name mysql56 -p 3306:3306 -e MYSQL_ROOT_PASSWORD=mysqlpwd mysql:5.6
-$ docker logs mysql56 | tail -2
-```
-2018-xx-xx 20:01:17 1 [Note] mysqld: ready for connections. で出ればOK
-
-ユーザー、パスワードを作成する
-
-```
-$ docker exec -i mysql56 mysql -uroot -pmysqlpwd < $CH04/database.sql
-Warning: Using a password on the command line interface can be insecure.
 
 ```
 
@@ -39,6 +30,8 @@ $ docker run -d --name jaeger \
     jaegertracing/all-in-one:1.6
 ```
 
+http://localhost:16686
+へアクセスしてJagerへの接続を確認します。
 
 ## 本ワークショップの内容
 
