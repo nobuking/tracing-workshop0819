@@ -17,13 +17,13 @@
 ## 環境の準備
 * Chapter01の環境に移動します。
 
-```
+```shell
 $ cd .../tracing-workshop0819/Chapter01/java
 ```
 
 * MySQLを起動します。
 
-```
+```shell
 $ docker run -d --name mysql56 -p 3306:3306 -e MYSQL_ROOT_PASSWORD=mysqlpwd mysql:5.6
 $ docker logs mysql56 | tail -2
 ```
@@ -32,14 +32,14 @@ $ docker logs mysql56 | tail -2
 
 * MySQLのテーブルを作成する。
 
-```
+```shell
 $ docker exec -i mysql56 mysql -uroot -pmysqlpwd < ../database.sql
 Warning: Using a password on the command line interface can be insecure.
 ```
 
 * mvnwを使って学習に必要なJavaアプリケーションを構築します。
 
-```
+```shell
 $ ./mvnw install
 ```
 
@@ -59,7 +59,7 @@ pom.xmlの中にopentracing-spring-cloud-starterが含まれていますが演�
 
 * exercise1用のmain classでサンプルアプリケーションを起動します。
 
-```
+```shell
 $ ./mvnw spring-boot:run -Dmain.class=exercise1.HelloApp
 [... a lot of logs ...]
 INFO 57474 --- [main] exercise1.HelloApp: Started HelloApp in 3.844 seconds
@@ -67,7 +67,7 @@ INFO 57474 --- [main] exercise1.HelloApp: Started HelloApp in 3.844 seconds
 
 * アプリケーションが起動したことを確認する。
 
-```
+```shell
 $ curl http://localhost:8080/sayHello/Gru
 Hello, Felonius Gru! Where are the minions?
 ```
@@ -81,7 +81,7 @@ Hello, Felonius Gru! Where are the minions?
 HelloApp.java内に以下をコピペします。
 Beanとして宣言し、DIによって他の場所から呼べるようにしておきます。
 
-```
+```java
  @Bean
     public io.opentracing.Tracer initTracer() {
         SamplerConfiguration samplerConfig = new SamplerConfiguration()
@@ -122,7 +122,7 @@ Spanにアノテーション（注釈）をつけます。Spanはその操作が
 
 HelloController.javaを以下のように修正します。
 
-```
+```java
 (略)
 @RestController
 public class HelloController {
