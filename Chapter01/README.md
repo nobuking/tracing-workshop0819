@@ -47,6 +47,7 @@ BUILD SUCCESSって出ればOK!
 
 ## Exercise 1: The Hello applicationアプリケーションの説明
 * 概要の説明
+
 本アプリケーションはSpring Bootで作られたHelloアプリケーションです。
 /sayHello/{name} エンドポイントにGETでHTTPアクセスすると、内部でJPAアダプタを利用してMySQLにアクセスし簡単なレスポンスを返します。
 
@@ -78,6 +79,7 @@ Hello, Felonius Gru! Where are the minions?
 トレーサーはシングルトンとしてアプリケーションごとに1つのトレーサーとして利用します。
 
 * Step1: HelloApp.javaにトレーサーを組み込みます
+
 HelloApp.java内に以下をコピペします。
 Beanとして宣言し、DIによって他の場所から呼べるようにしておきます。
 
@@ -158,13 +160,13 @@ public class HelloController {
 * これらを実装したHelloアプリケーションをビルドし起動します。
 修正したexercise1をビルドし直しても結果は同じです。
 
-```
+```shell
 $ ./mvnw spring-boot:run -Dmain.class=exercise2.HelloApp
 ```
 
 * curl で何度かアクセスします。
 
-```
+```shell
 $ curl http://localhost:8080/sayHello/Gru
 $ curl http://localhost:8080/sayHello/Nefario
 ```
@@ -188,7 +190,7 @@ DBの読み取りと挨拶のフォーマット生成の関数にSpanを追加�
 
 HelloController.java内のgetPerson関数とformatGreeting関数を以下のように修正します。
 
-```
+```java
     private Person getPerson(String name, Span parent) {
         Span span = tracer.buildSpan("get-person").asChildOf(parent).start(); //Span開始
         try {
@@ -203,7 +205,7 @@ HelloController.java内のgetPerson関数とformatGreeting関数を以下のよ�
     }
 ```
 
-```
+```java
     private String formatGreeting(Person person, Span parent) {
         Span span = tracer.buildSpan("format-greeting").asChildOf(parent).start(); //Span開始
         try {
@@ -225,13 +227,13 @@ HelloController.java内のgetPerson関数とformatGreeting関数を以下のよ�
 * これらを実装したHelloアプリケーションをビルドし起動します。
 修正したコードをビルドし直しても結果は同じです。
 
-```
+```shell
 $ ./mvnw spring-boot:run -Dmain.class=exercise3a.HelloApp
 ```
 
 * curl で何度かアクセスします。
 
-```
+```shell
 $ curl http://localhost:8080/sayHello/Gru
 $ curl http://localhost:8080/sayHello/Nefario
 ```
@@ -246,11 +248,11 @@ Scope Managerを使うスレッド間でアクティブなSpanの関係性を自
 
 演習3aのコードを以下のコードに修正します。
 
-```
+```java
 import io.opentracing.Scope; //Scopeをインポート
 ```
 
-```
+```java
 @RestController
 public class HelloController {
         
@@ -281,7 +283,7 @@ public class HelloController {
     }
 ```
 
-```
+```java
  private Person getPerson(String name) {
         Span span = tracer.buildSpan("get-person").start();
         try (Scope scope = tracer.scopeManager().activate(span, false)) {
@@ -296,7 +298,7 @@ public class HelloController {
     } 
 ```
 
-```
+```java
 private String formatGreeting(Person person) {
         Span span = tracer.buildSpan("format-greeting").start();
         try (Scope scope = tracer.scopeManager().activate(span, false)) {
@@ -318,13 +320,13 @@ private String formatGreeting(Person person) {
 * これらを実装したHelloアプリケーションをビルドし起動します。
 修正したコードをビルドし直しても結果は同じです。
 
-```
+```shell
 $ ./mvnw spring-boot:run -Dmain.class=exercise3b.HelloApp
 ```
 
 * curl で何度かアクセスします。
 
-```
+```shell
 $ curl http://localhost:8080/sayHello/Gru
 $ curl http://localhost:8080/sayHello/Nefario
 ```
@@ -346,7 +348,7 @@ $ curl http://localhost:8080/sayHello/Nefario
 BigBrotherサービスはポート8081でリッスンし、getPersonというエンドポイントを持ちます。
 パス・パラメーターとして個人の名前を受け取り個人に関する情報をJSONとして返します。
 
-```
+```shell
 $ curl http://localhost:8081/getPerson/Gru
 {"Name":"Gru","Title":"Felonius","Description":"Where are the minions?"}
 ```
@@ -354,14 +356,14 @@ $ curl http://localhost:8081/getPerson/Gru
 Formatterサービスはポート8082でリッスンし、formatGreetingというエンドポイントを持ちます。
 URL問い合わせパラメータとしてエンコードされたname、title、descriptionの3つのパラメータを受け取り、プレーン・テキスト文字列で応答します。
 
-```
+```shell
 $ curl 'http://localhost:8082/formatGreeting?name=Smith&title=Agent'
 Hello, Agent Smith!
 ```
 
 * exercice4aのコードを確認します。
 
-```
+```shell
 $ cd .../tracing-workshop0819-mywork/Chapter01/java/src/main/java/exercise4a
 $ tree .
 .
@@ -384,7 +386,7 @@ HelloControllerはまだ同じgetPerson()関数とformatGreeting()関数を持�
 
 * HelloApp, BBApp, FAppを起動します。
 
-```
+```shell
 $ ./mvnw spring-boot:run -Dmain.class=exercise4a.bigbrother.BBApp
 $ ./mvnw spring-boot:run -Dmain.class=exercise4a.formatter.FApp
 $ ./mvnw spring-boot:run -Dmain.class=exercise4a.HelloApp
@@ -392,7 +394,7 @@ $ ./mvnw spring-boot:run -Dmain.class=exercise4a.HelloApp
 
 * curl でエンドポイントにアクセスしてみて下さい。
 
-```
+```shell
 $ curl http://localhost:8080/sayHello/Gru
 ```
 
@@ -408,12 +410,10 @@ Javaの場合、HTTPヘッダを表現するための標準的な規約がない
 
 まずはTracedControllerクラスのコードを確認します。
 
-```
-(略)
+```java
 public class TracedController {
     @Autowired
     protected Tracer tracer;
-
 
     /**
     * コントローラ内のHTTPハンドラによって実装される受信HTTP要求に対して、get()の逆を実行するstartServerSpan()メソッドを実装します。このメソッドは、spanコンテキストをヘッダーから抽出し、新しいサーバー側のspanを起動するときにそれを親として渡します。
@@ -494,14 +494,15 @@ public class TracedController {
 
 * exercie4bのコードをもとにアプリケーションを起動してみます。
 
-```
+```shell
 $ ./mvnw spring-boot:run -Dmain.class=exercise4b.bigbrother.BBApp
 $ ./mvnw spring-boot:run -Dmain.class=exercise4b.formatter.FApp
 $ ./mvnw spring-boot:run -Dmain.class=exercise4b.HelloApp
 ```
 
 * curlでアプリケーションのエンドポイントにアクセスします。 
-```
+
+```shell
 $ curl http://localhost:8080/sayHello/Gru
 ```
 
@@ -524,8 +525,7 @@ Baggage Itemをうまく使うことで前回の解説編でお伝えしたよ�
 
 * exercice5のFController.javaを確認します。
 
-```
-(略)
+```java
  @GetMapping('/formatGreeting')
     public String formatGreeting(
             @RequestParam String name, 
@@ -554,7 +554,7 @@ JaegerのgetBaggageItemメソッドはkeyがgreetingである値を取得しま�
 
 * exercie5のコードをもとにアプリケーションを起動してみます。
 
-```
+```shell
 $ ./mvnw spring-boot:run -Dmain.class=exercise5.bigbrother.BBApp
 $ ./mvnw spring-boot:run -Dmain.class=exercise5.formatter.FApp
 $ ./mvnw spring-boot:run -Dmain.class=exercise5.HelloApp
@@ -562,7 +562,7 @@ $ ./mvnw spring-boot:run -Dmain.class=exercise5.HelloApp
 
 * 以下を実行します。
 
-```
+```shell
 $ curl -H 'jaeger-baggage: greeting=Bonjour'  http://localhost:8080/sayHello/Kevin
 Bonjour, Kevin!
 ```
@@ -574,7 +574,7 @@ Bonjour, Kevin!
 
 * pom.xmlのコメントアウトされている部分を解除します。
 
-```
+```xml
  <dependency>
      <groupId>io.opentracing.contrib</groupId>
      <artifactId>opentracing-spring-cloud-starter</artifactId>
@@ -584,7 +584,7 @@ Bonjour, Kevin!
 
 * excrcise6のコードでアプリケーションを起動します。
 
-```
+```shell
 $ ./mvnw spring-boot:run -Dmain.class=exercise6.bigbrother.BBApp
 $ ./mvnw spring-boot:run -Dmain.class=exercise6.formatter.FApp
 $ ./mvnw spring-boot:run -Dmain.class=exercise6.HelloApp
