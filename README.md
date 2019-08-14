@@ -32,6 +32,12 @@ http://localhost:16686
 へアクセスしてJaegerへの接続を確認します。
 NSXICの場合はポート転送が必要になりますので適宜設定下さい。
 
+* 演習アプリケーションをローカルにコピー
+
+```
+git clone https://github.com/nobuking/tracing-workshop0819.git
+```
+
 
 ## 本ワークショップの内容
 
