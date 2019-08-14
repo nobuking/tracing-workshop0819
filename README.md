@@ -35,7 +35,7 @@ NSXICの場合はポート転送が必要になりますので適宜設定下さ
 * 演習アプリケーションをローカルにコピー
 
 ```
-git clone https://github.com/nobuking/tracing-workshop0819.git
+$ git clone https://github.com/nobuking/tracing-workshop0819.git
 ```
 
 
