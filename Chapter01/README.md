@@ -11,7 +11,6 @@
 * Exercise 4: 複数プロセス間のトレース
   * 4a) モノリスをマイクロサービスへ変更する
   * 4b) プロセス間のコンテキスト伝播
-  * 4c) OpenTracing推奨タグを付与する
 * Exercise 5: baggageを利用する
 * Exercise 6: オープンソースの自動トレースを適用する
 
@@ -378,9 +377,236 @@ $ tree .
 
 HelloControllerはまだ同じgetPerson()関数とformatGreeting()関数を持っていますが、それらは2つの新しいサービス（exercise4a.bigbrotherとexercise4a.formatterパッケージの中にある）に対してauto-injectされるSpringのRestTemplateを使って、HTTPリクエストを実行します。
 
+各サブパッケージにはAppクラス(BBAppとFApp)とコントローラクラスがあります。すべてのAppクラスは、トレース内のサービスを分離できるように、固有の名前を持つ独自のトレーサーをインスタンス化します。JPAアノテーションはデータベースにアクセスする唯一のアノテーションであるため、HelloAppからBBAppに移動されます。2つの新しいサービスを異なるポートで実行する必要があるため、それぞれがサーバを上書きします。
+
+* HelloApp.java, BBApp.java, FApp.java, HelloController.java, BBController.java, FController.javaのコードを確認します。
+
+
+* HelloApp, BBApp, FAppを起動します。
+
+```
+$ ./mvnw spring-boot:run -Dmain.class=exercise4a.bigbrother.BBApp
+$ ./mvnw spring-boot:run -Dmain.class=exercise4a.formatter.FApp
+$ ./mvnw spring-boot:run -Dmain.class=exercise4a.HelloApp
+```
+
+* curl でエンドポイントにアクセスしてみて下さい。
+
+```
+$ curl http://localhost:8080/sayHello/Gru
+```
+
+* Jaegerでjava-4-*というサービス名でトレースを確認してみて下さい。
+
+上記で確認すると、各マイクロサービスのトレースがそれぞれ表示されていて一つのトレースとして見えていないと思います。
+
+この段階では、Jaegerはこれらのトレースが一連のトランザクションと認識できていません。プロセス間でコンテキストを伝播させる設定がないからです。
 
 
 ### 4b) プロセス間のコンテキスト伝播
-### 4c) OpenTracing推奨タグを付与する
+Javaの場合、HTTPヘッダを表現するための標準的な規約がないため、TracedControllerクラスを定義して、他のControllerクラスにてTracedControllerクラスを継承して使います。
+
+まずはTracedControllerクラスのコードを確認します。
+
+```
+(略)
+public class TracedController {
+    @Autowired
+    protected Tracer tracer;
+
+
+    /**
+    * コントローラ内のHTTPハンドラによって実装される受信HTTP要求に対して、get()の逆を実行するstartServerSpan()メソッドを実装します。このメソッドは、spanコンテキストをヘッダーから抽出し、新しいサーバー側のspanを起動するときにそれを親として渡します。
+    */
+    protected Span startServerSpan(String operationName, HttpServletRequest request) { //startServerSpanメソッドを定義
+        HttpServletRequestExtractAdapter carrier = new HttpServletRequestExtractAdapter(request);
+        SpanContext parent = tracer.extract(Format.Builtin.HTTP_HEADERS, carrier);
+        Span span = tracer.buildSpan(operationName).asChildOf(parent).start();
+        Tags.SPAN_KIND.set(span, Tags.SPAN_KIND_SERVER);
+        return span;
+    }
+
+    /**
+     * 送信HTTP要求の実行に使用されます。トレース・コンテキストを要求ヘッダーに注入する必要があるため、SpringのHttpHeadersオブジェクトを使用し、それをアダプター・クラスHttpHeaderInjectAdapterにラップして、OpenTracingのTextMapインターフェースの実装のようにします。
+     */
+    protected <T> T get(String operationName, URI uri, Class<T> entityClass, RestTemplate restTemplate) {  //getメソッドを定義
+        Span span = tracer.buildSpan(operationName).start();
+        try (Scope scope = tracer.scopeManager().activate(span, false)) {
+            Tags.SPAN_KIND.set(span, Tags.SPAN_KIND_CLIENT);
+            Tags.HTTP_URL.set(span, uri.toString());
+            Tags.HTTP_METHOD.set(span, "GET");
+
+            HttpHeaders headers = new HttpHeaders();
+            HttpHeaderInjectAdapter carrier = new HttpHeaderInjectAdapter(headers);
+            tracer.inject(span.context(), Format.Builtin.HTTP_HEADERS, carrier);
+            HttpEntity<String> entity = new HttpEntity<>(headers);
+            return restTemplate.exchange(uri, HttpMethod.GET, entity, entityClass).getBody();
+        } finally {
+            span.finish();
+        }
+    }
+
+    private static class HttpServletRequestExtractAdapter implements TextMap {
+        private final Map<String, String> headers;
+
+        HttpServletRequestExtractAdapter(HttpServletRequest request) {
+            this.headers = new LinkedHashMap<>();
+            Enumeration<String> keys = request.getHeaderNames();
+            while (keys.hasMoreElements()) {
+                String key = keys.nextElement();
+                String value = request.getHeader(key);
+                headers.put(key, value);
+            }
+        }
+
+        @Override
+        public Iterator<Entry<String, String>> iterator() {
+            return headers.entrySet().iterator();
+        }
+
+        @Override
+        public void put(String key, String value) {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    private static class HttpHeaderInjectAdapter implements TextMap {
+        private final HttpHeaders headers;
+
+        HttpHeaderInjectAdapter(HttpHeaders headers) {
+            this.headers = headers;
+        }
+        @Override
+        public Iterator<Entry<String, String>> iterator() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void put(String key, String value) {
+            headers.set(key, value);
+        }
+    }
+
+}
+```
+
+また、OpenTracing推奨のタグであるSpan.kind, http.url, http.methodを使用しています。
+
+* exercie4bのコードをもとにアプリケーションを起動してみます。
+
+```
+$ ./mvnw spring-boot:run -Dmain.class=exercise4b.bigbrother.BBApp
+$ ./mvnw spring-boot:run -Dmain.class=exercise4b.formatter.FApp
+$ ./mvnw spring-boot:run -Dmain.class=exercise4b.HelloApp
+```
+
+* curlでアプリケーションのエンドポイントにアクセスします。 
+```
+$ curl http://localhost:8080/sayHello/Gru
+```
+
+今度はJaeger上で一つのトレース見えているはずです。
+
 ## Exercise 5: baggageを利用する
+演習4までで、トレースの基本的な実装は完了しています。
+
+演習5ではBaggage ItemというOpenTracingの持つもうひとつの機能について演習します。
+
+演習4でわかった通り、OpenTracingではTraceidなどの分散トレーシングのメタデータをプロセス間で伝播させることができます。
+Baggage Itemはこれを分散トレーシングメタデータ固有のものではなく、トランザクションに任意のデータを渡すための概念です。
+（TagやLogはあくまでもSpan内の情報に閉じています。）
+
+Baggage Itemをうまく使うことで前回の解説編でお伝えしたように様々なユースケースに分散トレーシングを応用できます。
+というか、Baggage Itemをうまく使うことが分散トレーシングの本質的な価値かも
+しれません。
+
+この演習では、FormatterサービスのFormatGreeting()関数を変更し、greetingという名前のbaggage項目からgreetingという単語を読み取ります。そのbaggage項目が設定されていない場合は、引き続きデフォルトの単語を使用します。
+
+* exercice5のFController.javaを確認します。
+
+```
+(略)
+ @GetMapping('/formatGreeting')
+    public String formatGreeting(
+            @RequestParam String name, 
+            @RequestParam String title,
+            @RequestParam String description, 
+            HttpServletRequest request) 
+    {
+        Scope scope = startServerSpan('/formatGreeting', request);
+        try {
+            String greeting = tracer
+                .activeSpan().getBaggageItem('greeting');
+            if (greeting == null) {
+                greeting = 'Hello';
+            }
+            String response = greeting + ', ';
+            ...
+            return response;
+        finally {
+            scope.close();
+        }
+    }
+(略)
+```
+
+JaegerのgetBaggageItemメソッドはkeyがgreetingである値を取得します。
+
+* exercie5のコードをもとにアプリケーションを起動してみます。
+
+```
+$ ./mvnw spring-boot:run -Dmain.class=exercise5.bigbrother.BBApp
+$ ./mvnw spring-boot:run -Dmain.class=exercise5.formatter.FApp
+$ ./mvnw spring-boot:run -Dmain.class=exercise5.HelloApp
+```
+
+* 以下を実行します。
+
+```
+$ curl -H 'jaeger-baggage: greeting=Bonjour'  http://localhost:8080/sayHello/Kevin
+Bonjour, Kevin!
+```
+
+* Jaegerでトレースを見てみてください。
+
 ## Exercise 6: オープンソースの自動トレースを適用する
+演習6では、OpenTracing contribで提供されているopentracing-spring-cloud-starterを使って計測コードなしでトレースを可能にする方法を体験します。
+
+* pom.xmlのコメントアウトされている部分を解除します。
+
+```
+ <dependency>
+     <groupId>io.opentracing.contrib</groupId>
+     <artifactId>opentracing-spring-cloud-starter</artifactId>
+     <version>0.1.13</version>
+ </dependency>
+```
+
+* excrcise6のコードでアプリケーションを起動します。
+
+```
+$ ./mvnw spring-boot:run -Dmain.class=exercise6.bigbrother.BBApp
+$ ./mvnw spring-boot:run -Dmain.class=exercise6.formatter.FApp
+$ ./mvnw spring-boot:run -Dmain.class=exercise6.HelloApp
+$ curl http://localhost:8080/sayHello/Gru
+```
+
+* Jaegerでトレースを見てください。
+ほとんどゼロタッチでトレースを取得することができました。
+とはいえ、Spanを取得するための一部のコードは残されたままです。
+
+java-traceresolver, java-spring-tracer-configuration, java-spring-jaegerなどのcontribを使用するとゼロタッチでトレースを取得することもできます。
+これらは自学習用にしておくので試してみて下さい。
+
+## 最後に
+Spring BootによるJavaアプリケーションでのJaegerを用いた分散トレーシングを体験してもらいました。
+自分たちのアプリケーションを理解して十分にJaegerに精通している場合は自前で実装することによるその強力さがわかるはずです。
+
+一方、特にSIerの場合は、すでに完成されているアプリケーションに対して商用APMを用いて自動で分散トレーシングを行うことも強力なソリューションになりえます。
+商用APMは自動でトレースコードを埋め込むだけではなく、そのバックエンドのUIも便利なものが多いです。
+これらを理解して使い分けていくためにも手動による分散トレーシングの学習は有効なはずです。
+
+ではこれにてChapter01は終わりにします。
+
+Happy Tracing!!
+
