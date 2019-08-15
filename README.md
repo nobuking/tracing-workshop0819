@@ -18,7 +18,7 @@ $ sudo yum install java-1.8.0-openjdk
 ```
 * dockerグループにjaegerユーザを追加。extして再度ログイン。
 
-```
+```shell
 $ sudo usermod -g docker jaeger
 $ sudo /bin/systemctl restart docker.service
 
@@ -28,7 +28,7 @@ $ exit
 * Jaegerの準備
 以下を実行します
 
-```
+```shell
 $ docker run -d --name jaeger \
     -p 6831:6831/udp \
     -p 16686:16686 \
@@ -40,9 +40,16 @@ http://localhost:16686
 へアクセスしてJaegerへの接続を確認します。
 NSXICの場合はポート転送が必要になりますので適宜設定下さい。
 
+* gitにプロキシ設定を追加
+
+```shell
+$ git config --global http.proxy https://btw01_pid230:btw01_pass@192.168.190.241:9000
+$ git config --global https.proxy https://btw01_pid230:btw01_pass@192.168.190.241:9000
+```
+
 * 演習アプリケーションをローカルにコピー
 
-```
+```shell
 $ git clone https://github.com/nobuking/tracing-workshop0819.git
 ```
 
