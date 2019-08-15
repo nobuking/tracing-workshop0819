@@ -16,7 +16,7 @@ JDK 1.8以上をインストールします。
 ```
 $ sudo yum install java-1.8.0-openjdk
 ```
-* dockerグループにjaegerユーザを追加。eixtして再度ログイン。
+* dockerグループにjaegerユーザを追加。extして再度ログイン。
 
 ```
 $ sudo groupadd docker
