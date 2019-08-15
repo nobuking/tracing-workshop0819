@@ -16,6 +16,14 @@ JDK 1.8以上をインストールします。
 ```
 $ sudo yum install java-1.8.0-openjdk
 ```
+
+* JAVA_HOMEを設定します。
+
+```
+$ export JAVA_HOME=/usr/lib/jvm/jre-1.8.0-openjdk-1.8.0.222.b10-0.el7_6.x86_64
+$ export PATH=$JAVA_HOME/bin:$PATH
+```
+
 * dockerグループにjaegerユーザを追加。extして再度ログイン。
 
 ```shell
@@ -52,6 +60,9 @@ $ git config --global https.proxy https://btw01_pid230:btw01_pass@192.168.190.24
 ```shell
 $ git clone https://github.com/nobuking/tracing-workshop0819.git
 ```
+
+* maven のプロキシを設定します。
+https://maven.apache.org/guides/mini/guide-proxies.html
 
 
 ## 本ワークショップの内容
