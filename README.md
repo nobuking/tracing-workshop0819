@@ -16,6 +16,15 @@ JDK 1.8以上をインストールします。
 ```
 $ sudo yum install java-1.8.0-openjdk
 ```
+* dockerグループにjaegerユーザを追加。eixtして再度ログイン。
+
+```
+$ sudo groupadd docker
+$ sudo usermod -g docker vagrant
+$ sudo /bin/systemctl restart docker.service
+
+$ exit
+```
 
 * Jaegerの準備
 以下を実行します
