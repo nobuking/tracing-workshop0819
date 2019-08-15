@@ -4,27 +4,39 @@
 このワークショップで用いるコードは、Mastering Distributed Tracingという書籍からのものを一部加工して利用しています。
 
 ## 環境事前準備
-* マシンへの接続
 NSXICのOpenStack環境を利用します。
 下記に参加者ごとのマシン割当を記載しているので確認して踏み台サーバ経由で接続してください。
 
 <https://sysrdc.app.box.com/file/502061380587>
 
-* JDKの準備
+* 踏み台サーバへ接続する
+
+ホスト： 172.30.210.249
+ポート； 13122
+アカウント： 上記boxの通り
+パスワード：　ユーザー名と同じ
+
+* ワークショップ用マシンへjaegerユーザで接続する
+
+```shell
+$ ssh jaeger@192.168.153.xx
+```
+
+* JDKの導入
 JDK 1.8以上をインストールします。
 
 ```
-$ sudo yum install java-1.8.0-openjdk
+$ sudo yum install -y java-1.8.0-openjdk-devel
 ```
 
 * JAVA_HOMEを設定します。
 
 ```
-$ export JAVA_HOME=/usr/lib/jvm/jre-1.8.0-openjdk-1.8.0.222.b10-0.el7_6.x86_64
+$ export JAVA_HOME=/usr/lib/jvm/java-openjdk
 $ export PATH=$JAVA_HOME/bin:$PATH
 ```
 
-* dockerグループにjaegerユーザを追加。extして再度ログイン。
+* jaegeユーザにdockerコマンドの実行権限を付与
 
 ```shell
 $ sudo usermod -g docker jaeger
@@ -33,8 +45,7 @@ $ sudo /bin/systemctl restart docker.service
 $ exit
 ```
 
-* Jaegerの準備
-以下を実行します
+* Jaegerコンテナの起動
 
 ```shell
 $ docker run -d --name jaeger \
@@ -62,7 +73,21 @@ $ git clone https://github.com/nobuking/tracing-workshop0819.git
 ```
 
 * maven のプロキシを設定します。
-https://maven.apache.org/guides/mini/guide-proxies.html
+
+```shell
+$ cd /home/jaeger/tracing-workshop0819/Chapter01/java/.mvn
+$ cat <<EOF > jvm.config
+-Dhttp.proxyHost=192.168.190.241
+-Dhttp.proxyPort=9000
+-Dhttp.proxyUser=btw01_pid230
+-Dhttp.proxyPassword=btw01_pass
+-Dhttps.proxyHost=192.168.190.241
+-Dhttps.proxyPort=9000
+-Dhttps.proxyUser=btw01_pid230
+-Dhttps.proxyPassword=btw01_pass
+-Djdk.http.auth.tunneling.disabledSchemes=
+EOF
+```
 
 
 ## 本ワークショップの内容
