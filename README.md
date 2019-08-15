@@ -19,8 +19,7 @@ $ sudo yum install java-1.8.0-openjdk
 * dockerグループにjaegerユーザを追加。extして再度ログイン。
 
 ```
-$ sudo groupadd docker
-$ sudo usermod -g docker vagrant
+$ sudo usermod -g docker jaeger
 $ sudo /bin/systemctl restart docker.service
 
 $ exit
