@@ -87,6 +87,23 @@ $ cat <<EOF > jvm.config
 -Dhttps.proxyPassword=btw01_pass
 -Djdk.http.auth.tunneling.disabledSchemes=
 EOF
+$ cd ~/.m2
+$ cat <<EOF > settings.xml
+<settings>
+  <proxies>
+   <proxy>
+      <id>btw01></id>
+      <active>true</active>
+      <protocol>http</protocol>
+      <host>192.168.190.241</host>
+      <port>9000</port>
+      <username>btw01_pid230</username>
+      <password>btw01_pass</password>
+      <nonProxyHosts></nonProxyHosts>
+    </proxy>
+  </proxies>
+</settings>
+EOF
 ```
 
 
