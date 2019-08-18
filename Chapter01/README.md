@@ -18,7 +18,7 @@
 * Chapter01の環境に移動します。
 
 ```shell
-$ cd .../tracing-workshop0819/Chapter01/java
+$ cd /home/jaeger/tracing-workshop0819/Chapter01/java
 ```
 
 * MySQLを起動します。
@@ -27,8 +27,8 @@ $ cd .../tracing-workshop0819/Chapter01/java
 $ docker run -d --name mysql56 -p 3306:3306 -e MYSQL_ROOT_PASSWORD=mysqlpwd mysql:5.6
 $ docker logs mysql56 | tail -2
 ```
-2018-xx-xx 20:01:17 1 [Note] mysqld: ready for connections. 
-みたいなログを確認できればOK
+MySQL init process done. Ready for start up.
+というログを確認すること。
 
 * MySQLのテーブルを作成する。
 
