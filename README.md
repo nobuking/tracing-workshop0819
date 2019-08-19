@@ -72,7 +72,11 @@ $ git config --global https.proxy https://btw01_pid230:btw01_pass@192.168.190.24
 $ git clone https://github.com/nobuking/tracing-workshop0819.git
 ```
 
+* treeコマンドのインストール
 
+```shell
+$ sudo yum -y install tree
+```
 
 
 ## 本ワークショップの内容
