@@ -43,6 +43,9 @@ Warning: Using a password on the command line interface can be insecure.
 $ ./mvnw install
 ```
 
+Exception in thread "main" java.net.UnknownHostException: repo.maven.apache.org
+って出て失敗します。
+
 * 失敗するのでmavenのプロキシを設定します。
 
 ```shell
@@ -77,6 +80,12 @@ $ cat <<EOF > settings.xml
 EOF
 ```
 
+* もう一度mvnw installを実行します。
+
+```shell
+$ cd /home/jaeger/tracing-workshop0819/Chapter01/java/
+$ ./mvnw install
+```
 
 BUILD SUCCESSって出ればOK!
 
