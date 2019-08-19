@@ -57,9 +57,12 @@ $ docker run -d --name jaeger \
     jaegertracing/all-in-one:1.6
 ```
 
+NSXICの場合はポート転送が必要になりますので適宜設定下さい。
+
+
 http://localhost:16686
 へアクセスしてJaegerへの接続を確認します。
-NSXICの場合はポート転送が必要になりますので適宜設定下さい。
+
 
 * gitにプロキシ設定を追加
 
