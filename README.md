@@ -58,6 +58,7 @@ $ docker run -d --name jaeger \
 ```
 
 NSXICの場合はポート転送が必要になりますので適宜設定下さい。
+![SSHportforward](https://user-images.githubusercontent.com/3029579/63232523-ae19fb80-c263-11e9-81db-14a7719e8c1d.png)
 
 
 http://localhost:16686
