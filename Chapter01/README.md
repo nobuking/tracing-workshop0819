@@ -128,6 +128,13 @@ Hello, Felonius Gru! Where are the minions?
 
 トレーサーはシングルトンとしてアプリケーションごとに1つのトレーサーとして利用します。
 
+* exercise1 ディレクトリに移動します。
+
+```shell
+$ cd /home/jaeger/tracing-workshop0819/Chapter01/java/src/main/java/exercise1
+$ ls -l
+```
+
 * Step1: HelloApp.javaにトレーサーを組み込みます
 
 HelloApp.java内に以下をコピペします。
