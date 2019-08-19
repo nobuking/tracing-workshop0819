@@ -94,9 +94,14 @@ BUILD SUCCESSって出ればOK!
 
 本アプリケーションはSpring Bootで作られたHelloアプリケーションです。
 /sayHello/{name} エンドポイントにGETでHTTPアクセスすると、内部でJPAアダプタを利用してMySQLにアクセスし簡単なレスポンスを返します。
-
 nameはMySQLに存在したものだけ有効です。
-.../tracing-workshop0819/Chapter01にあるdatabase.sql文に記載した名前が対象です。
+/home/jaeger/tracing-workshop0819/Chapter01にあるdatabase.sql文に記載した名前が対象です。
+
+ディレクトリ構造は以下のコマンドで確認できます。
+
+```shell
+$ tree -A /home/jaeger/tracing-workshop0819/Chapter01
+```
 
 今度の演習ではMavenラッパーを利用することで演習間のmain classを切り替えてビルド・起動します。
 
@@ -105,6 +110,7 @@ pom.xmlの中にopentracing-spring-cloud-starterが含まれていますが演�
 * exercise1用のmain classでサンプルアプリケーションを起動します。
 
 ```shell
+$ cd /home/jaeger/tracing-workshop0819/Chapter01/java
 $ ./mvnw spring-boot:run -Dmain.class=exercise1.HelloApp
 [... a lot of logs ...]
 INFO 57474 --- [main] exercise1.HelloApp: Started HelloApp in 3.844 seconds
@@ -409,7 +415,7 @@ Hello, Agent Smith!
 
 ```shell
 $ cd .../tracing-workshop0819-mywork/Chapter01/java/src/main/java/exercise4a
-$ tree .
+$ tree -A .
 .
 ├── HelloApp.java
 ├── HelloController.java
