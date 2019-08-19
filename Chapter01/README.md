@@ -119,7 +119,7 @@ INFO 57474 --- [main] exercise1.HelloApp: Started HelloApp in 3.844 seconds
 * アプリケーションが起動したことを確認する。
 
 ```shell
-$ curl http://localhost:8080/sayHello/Gru
+$ curl --noproxy localhost http://localhost:8080/sayHello/Gru
 Hello, Felonius Gru! Where are the minions?
 ```
 
@@ -211,14 +211,15 @@ public class HelloController {
 修正したexercise1をビルドし直しても結果は同じです。
 
 ```shell
+$ cd /home/jaeger/tracing-workshop0819/Chapter01/java
 $ ./mvnw spring-boot:run -Dmain.class=exercise2.HelloApp
 ```
 
 * curl で何度かアクセスします。
 
 ```shell
-$ curl http://localhost:8080/sayHello/Gru
-$ curl http://localhost:8080/sayHello/Nefario
+$ curl --noproxy localhost http://localhost:8080/sayHello/Gru
+$ curl --noproxy localhost http://localhost:8080/sayHello/Nefario
 ```
 
 * Jaegerバックエンドにブラウザでアクセスして結果を確認します。
@@ -278,14 +279,15 @@ HelloController.java内のgetPerson関数とformatGreeting関数を以下のよ�
 修正したコードをビルドし直しても結果は同じです。
 
 ```shell
+$ cd /home/jaeger/tracing-workshop0819/Chapter01/java
 $ ./mvnw spring-boot:run -Dmain.class=exercise3a.HelloApp
 ```
 
 * curl で何度かアクセスします。
 
 ```shell
-$ curl http://localhost:8080/sayHello/Gru
-$ curl http://localhost:8080/sayHello/Nefario
+$ curl --noproxy localhost http://localhost:8080/sayHello/Gru
+$ curl --noproxy localhost http://localhost:8080/sayHello/Nefario
 ```
 
 * Jaegerバックエンドにブラウザでアクセスして結果を確認します。
@@ -371,14 +373,15 @@ private String formatGreeting(Person person) {
 修正したコードをビルドし直しても結果は同じです。
 
 ```shell
+$ cd /home/jaeger/tracing-workshop0819/Chapter01/java
 $ ./mvnw spring-boot:run -Dmain.class=exercise3b.HelloApp
 ```
 
 * curl で何度かアクセスします。
 
 ```shell
-$ curl http://localhost:8080/sayHello/Gru
-$ curl http://localhost:8080/sayHello/Nefario
+$ curl --noproxy localhost http://localhost:8080/sayHello/Gru
+$ curl --noproxy localhost http://localhost:8080/sayHello/Nefario
 ```
 
 * Jaegerバックエンドにブラウザでアクセスして結果を確認します。
@@ -399,7 +402,7 @@ BigBrotherサービスはポート8081でリッスンし、getPersonというエ
 パス・パラメーターとして個人の名前を受け取り個人に関する情報をJSONとして返します。
 
 ```shell
-$ curl http://localhost:8081/getPerson/Gru
+$ curl --noproxy localhost http://localhost:8081/getPerson/Gru
 {"Name":"Gru","Title":"Felonius","Description":"Where are the minions?"}
 ```
 
@@ -407,14 +410,14 @@ Formatterサービスはポート8082でリッスンし、formatGreetingとい�
 URL問い合わせパラメータとしてエンコードされたname、title、descriptionの3つのパラメータを受け取り、プレーン・テキスト文字列で応答します。
 
 ```shell
-$ curl 'http://localhost:8082/formatGreeting?name=Smith&title=Agent'
+$ curl --noproxy localhost 'http://localhost:8082/formatGreeting?name=Smith&title=Agent'
 Hello, Agent Smith!
 ```
 
 * exercice4aのコードを確認します。
 
 ```shell
-$ cd .../tracing-workshop0819-mywork/Chapter01/java/src/main/java/exercise4a
+$ cd /home/jaeger/tracing-workshop0819-mywork/Chapter01/java/src/main/java/exercise4a
 $ tree -A .
 .
 ├── HelloApp.java
@@ -437,6 +440,7 @@ HelloControllerはまだ同じgetPerson()関数とformatGreeting()関数を持�
 * HelloApp, BBApp, FAppを起動します。
 
 ```shell
+$ cd /home/jaeger/tracing-workshop0819/Chapter01/java
 $ ./mvnw spring-boot:run -Dmain.class=exercise4a.bigbrother.BBApp
 $ ./mvnw spring-boot:run -Dmain.class=exercise4a.formatter.FApp
 $ ./mvnw spring-boot:run -Dmain.class=exercise4a.HelloApp
@@ -445,7 +449,7 @@ $ ./mvnw spring-boot:run -Dmain.class=exercise4a.HelloApp
 * curl でエンドポイントにアクセスしてみて下さい。
 
 ```shell
-$ curl http://localhost:8080/sayHello/Gru
+$ curl --noproxy localhost http://localhost:8080/sayHello/Gru
 ```
 
 * Jaegerでjava-4-*というサービス名でトレースを確認してみて下さい。
@@ -545,6 +549,7 @@ public class TracedController {
 * exercie4bのコードをもとにアプリケーションを起動してみます。
 
 ```shell
+$ cd /home/jaeger/tracing-workshop0819/Chapter01/java
 $ ./mvnw spring-boot:run -Dmain.class=exercise4b.bigbrother.BBApp
 $ ./mvnw spring-boot:run -Dmain.class=exercise4b.formatter.FApp
 $ ./mvnw spring-boot:run -Dmain.class=exercise4b.HelloApp
@@ -553,7 +558,7 @@ $ ./mvnw spring-boot:run -Dmain.class=exercise4b.HelloApp
 * curlでアプリケーションのエンドポイントにアクセスします。 
 
 ```shell
-$ curl http://localhost:8080/sayHello/Gru
+$ curl --noproxy localhost http://localhost:8080/sayHello/Gru
 ```
 
 今度はJaeger上で一つのトレース見えているはずです。
@@ -605,6 +610,7 @@ JaegerのgetBaggageItemメソッドはkeyがgreetingである値を取得しま�
 * exercie5のコードをもとにアプリケーションを起動してみます。
 
 ```shell
+$ cd /home/jaeger/tracing-workshop0819/Chapter01/java
 $ ./mvnw spring-boot:run -Dmain.class=exercise5.bigbrother.BBApp
 $ ./mvnw spring-boot:run -Dmain.class=exercise5.formatter.FApp
 $ ./mvnw spring-boot:run -Dmain.class=exercise5.HelloApp
@@ -613,7 +619,7 @@ $ ./mvnw spring-boot:run -Dmain.class=exercise5.HelloApp
 * 以下を実行します。
 
 ```shell
-$ curl -H 'jaeger-baggage: greeting=Bonjour'  http://localhost:8080/sayHello/Kevin
+$ curl --noproxy localhost -H 'jaeger-baggage: greeting=Bonjour'  http://localhost:8080/sayHello/Kevin
 Bonjour, Kevin!
 ```
 
@@ -635,10 +641,11 @@ Bonjour, Kevin!
 * excrcise6のコードでアプリケーションを起動します。
 
 ```shell
+$ cd /home/jaeger/tracing-workshop0819/Chapter01/java
 $ ./mvnw spring-boot:run -Dmain.class=exercise6.bigbrother.BBApp
 $ ./mvnw spring-boot:run -Dmain.class=exercise6.formatter.FApp
 $ ./mvnw spring-boot:run -Dmain.class=exercise6.HelloApp
-$ curl http://localhost:8080/sayHello/Gru
+$ curl --noproxy localhost http://localhost:8080/sayHello/Gru
 ```
 
 * Jaegerでトレースを見てください。
