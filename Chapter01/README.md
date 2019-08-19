@@ -43,6 +43,41 @@ Warning: Using a password on the command line interface can be insecure.
 $ ./mvnw install
 ```
 
+* 失敗するのでmavenのプロキシを設定します。
+
+```shell
+$ cd /home/jaeger/tracing-workshop0819/Chapter01/java/.mvn
+$ cat <<EOF > jvm.config
+-Dhttp.proxyHost=192.168.190.241
+-Dhttp.proxyPort=9000
+-Dhttp.proxyUser=btw01_pid230
+-Dhttp.proxyPassword=btw01_pass
+-Dhttps.proxyHost=192.168.190.241
+-Dhttps.proxyPort=9000
+-Dhttps.proxyUser=btw01_pid230
+-Dhttps.proxyPassword=btw01_pass
+-Djdk.http.auth.tunneling.disabledSchemes=
+EOF
+$ cd ~/.m2
+$ cat <<EOF > settings.xml
+<settings>
+  <proxies>
+   <proxy>
+      <id>btw01></id>
+      <active>true</active>
+      <protocol>http</protocol>
+      <host>192.168.190.241</host>
+      <port>9000</port>
+      <username>btw01_pid230</username>
+      <password>btw01_pass</password>
+      <nonProxyHosts></nonProxyHosts>
+    </proxy>
+  </proxies>
+</settings>
+EOF
+```
+
+
 BUILD SUCCESSって出ればOK!
 
 ## Exercise 1: The Hello applicationアプリケーションの説明
